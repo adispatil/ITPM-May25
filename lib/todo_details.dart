@@ -20,18 +20,12 @@ class TodoDetails extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Hero(
-              tag: 'todo_title_${todo.id}',
-              child: Material(
-                color: Colors.transparent,
-                child: Text(
-                  todo.title,
-                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.blueAccent,
-                      ),
-                ),
-              ),
+            Text(
+              todo.title,
+              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.blueAccent,
+                  ),
             ),
             const SizedBox(height: 18),
             Row(
