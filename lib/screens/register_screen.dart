@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../api_helper.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -77,28 +78,50 @@ class _RegisterScreenState extends State<RegisterScreen> {
       setState(() {
         _isLoading = true;
       });
-
-      // Simulate API call
-      await Future.delayed(const Duration(seconds: 2));
-
-      if (mounted) {
+      try {
+        final response = await ApiHelper().registerUser(
+          userid: _emailController.text.trim(),
+          password: _passwordController.text.trim(),
+          name: _nameController.text.trim(),
+          email: _emailController.text.trim(),
+        );
+        if (response['success'] == true) {
+          if (mounted) {
+            setState(() {
+              _isLoading = false;
+            });
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(response['message'] ?? 'Registration successful!'),
+                backgroundColor: Colors.green,
+              ),
+            );
+            Navigator.pushNamedAndRemoveUntil(
+              context,
+              '/home',
+              (route) => false,
+            );
+          }
+        } else {
+          setState(() {
+            _isLoading = false;
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(response['message'] ?? 'Registration failed'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      } catch (e) {
         setState(() {
           _isLoading = false;
         });
-        
-        // Navigate to home screen or show success message
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Registration successful!'),
-            backgroundColor: Colors.green,
+          SnackBar(
+            content: Text('Registration failed: $e'),
+            backgroundColor: Colors.red,
           ),
-        );
-        
-        // Navigate to home screen
-        Navigator.pushNamedAndRemoveUntil(
-          context,
-          '/home',
-          (route) => false,
         );
       }
     }
