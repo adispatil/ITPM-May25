@@ -111,8 +111,8 @@ class MainActivity : FlutterActivity() {
         return batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)
     }
     
-    private fun getDeviceInfo(): Map<String, Any> {
-        return mapOf(
+    private fun getDeviceInfo(): Map<String, Any?> {
+        return mapOf<String, Any?>(
             "platform" to "Android",
             "version" to Build.VERSION.RELEASE,
             "sdkVersion" to Build.VERSION.SDK_INT,
@@ -130,7 +130,7 @@ class MainActivity : FlutterActivity() {
         Toast.makeText(this, message, Toast.LENGTH_LONG).show()
     }
     
-    private fun performArithmetic(a: Double, b: Double, operation: String): Map<String, Any> {
+    private fun performArithmetic(a: Double, b: Double, operation: String): Map<String, Any?> {
         return try {
             val result: Double
             val operationSymbol: String
@@ -150,7 +150,7 @@ class MainActivity : FlutterActivity() {
                 }
                 "divide" -> {
                     if (b == 0.0) {
-                        return mapOf(
+                        return mapOf<String, Any?>(
                             "error" to "Division by zero",
                             "result" to null,
                             "operation" to operation,
@@ -162,7 +162,7 @@ class MainActivity : FlutterActivity() {
                     operationSymbol = "÷"
                 }
                 else -> {
-                    return mapOf(
+                    return mapOf<String, Any?>(
                         "error" to "Invalid operation",
                         "result" to null,
                         "operation" to operation,
@@ -172,7 +172,7 @@ class MainActivity : FlutterActivity() {
                 }
             }
             
-            mapOf(
+            mapOf<String, Any?>(
                 "result" to result,
                 "operation" to operation,
                 "operationSymbol" to operationSymbol,
@@ -182,7 +182,7 @@ class MainActivity : FlutterActivity() {
                 "platform" to "Android (Kotlin)"
             )
         } catch (e: Exception) {
-            mapOf(
+            mapOf<String, Any?>(
                 "error" to "Arithmetic operation failed: ${e.message}",
                 "result" to null,
                 "operation" to operation,
@@ -192,10 +192,10 @@ class MainActivity : FlutterActivity() {
         }
     }
     
-    private fun controlFlashlight(turnOn: Boolean): Map<String, Any> {
+    private fun controlFlashlight(turnOn: Boolean): Map<String, Any?> {
         return try {
             if (cameraId == null) {
-                return mapOf(
+                return mapOf<String, Any?>(
                     "error" to "No camera with flash found",
                     "success" to false,
                     "turnOn" to turnOn
@@ -204,14 +204,14 @@ class MainActivity : FlutterActivity() {
             
             cameraManager?.setTorchMode(cameraId!!, turnOn)
             
-            mapOf(
+            mapOf<String, Any?>(
                 "success" to true,
                 "turnOn" to turnOn,
                 "message" to if (turnOn) "Flashlight turned ON" else "Flashlight turned OFF",
                 "platform" to "Android (Kotlin)"
             )
         } catch (e: Exception) {
-            mapOf(
+            mapOf<String, Any?>(
                 "error" to "Failed to control flashlight: ${e.message}",
                 "success" to false,
                 "turnOn" to turnOn
@@ -232,7 +232,7 @@ class MainActivity : FlutterActivity() {
         sensor = sensorManager?.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
         
         if (sensor != null) {
-            sensorJob = CoroutineScope(Dispatchers.Default).launch {
+            sensorJob = CoroutineScope(Dispatchers.Main).launch {
                 var counter = 0.0
                 while (isActive) {
                     // Simulate sensor data (in real app, you'd get actual sensor values)
@@ -244,7 +244,7 @@ class MainActivity : FlutterActivity() {
             }
         } else {
             // Fallback to simulated data if no sensor available
-            sensorJob = CoroutineScope(Dispatchers.Default).launch {
+            sensorJob = CoroutineScope(Dispatchers.Main).launch {
                 var counter = 0.0
                 while (isActive) {
                     val sensorValue = Math.sin(counter * 0.1) * 5.0
