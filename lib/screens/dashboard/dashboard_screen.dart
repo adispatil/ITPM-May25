@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../widgets/sidebar/sidebar_widget.dart';
-import '../../models/menu_item.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -12,60 +11,7 @@ class DashboardScreen extends StatefulWidget {
 class _DashboardScreenState extends State<DashboardScreen> {
   String? selectedMenuItem;
 
-  final List<MenuItem> menuItems = [
-    MenuItem(
-      title: 'Dashboard',
-      icon: Icons.dashboard,
-      isExpanded: true,
-      subItems: [
-        MenuItem(title: 'Overview', icon: Icons.visibility),
-        MenuItem(title: 'Custom Charts', icon: Icons.bar_chart),
-        MenuItem(title: 'Alert Log', icon: Icons.warning),
-        MenuItem(title: 'Alert Management', icon: Icons.settings),
-        MenuItem(title: 'User Feedback', icon: Icons.feedback),
-      ],
-    ),
-    MenuItem(
-      title: 'Infrastructure',
-      icon: Icons.storage,
-      subItems: [
-        MenuItem(title: 'Servers', icon: Icons.computer),
-        MenuItem(title: 'Networks', icon: Icons.network_check),
-        MenuItem(title: 'Storage', icon: Icons.storage),
-        MenuItem(title: 'Monitoring', icon: Icons.monitor),
-      ],
-    ),
-    MenuItem(
-      title: 'Applications',
-      icon: Icons.apps,
-      subItems: [
-        MenuItem(title: 'Web Apps', icon: Icons.web),
-        MenuItem(title: 'Mobile Apps', icon: Icons.phone_android),
-        MenuItem(title: 'Desktop Apps', icon: Icons.desktop_windows),
-        MenuItem(title: 'APIs', icon: Icons.api),
-        MenuItem(title: 'Microservices', icon: Icons.cloud),
-      ],
-    ),
-    MenuItem(
-      title: 'Analytics',
-      icon: Icons.analytics,
-      subItems: [
-        MenuItem(title: 'Reports', icon: Icons.assessment),
-        MenuItem(title: 'Metrics', icon: Icons.trending_up),
-        MenuItem(title: 'Insights', icon: Icons.lightbulb),
-      ],
-    ),
-    MenuItem(
-      title: 'Settings',
-      icon: Icons.settings,
-      subItems: [
-        MenuItem(title: 'General', icon: Icons.settings),
-        MenuItem(title: 'Security', icon: Icons.security),
-        MenuItem(title: 'Users', icon: Icons.people),
-        MenuItem(title: 'Integrations', icon: Icons.integration_instructions),
-      ],
-    ),
-  ];
+
 
   void _onMenuItemSelected(String title) {
     setState(() {
@@ -277,7 +223,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
       body: Row(
         children: [
           SidebarWidget(
-            menuItems: menuItems,
             selectedItem: selectedMenuItem,
             onItemSelected: _onMenuItemSelected,
           ),

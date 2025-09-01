@@ -4,13 +4,11 @@ import '../../models/menu_item.dart';
 import '../../blocs/sidebar/sidebar.dart';
 
 class SidebarWidget extends StatelessWidget {
-  final List<MenuItem> menuItems;
   final String? selectedItem;
   final Function(String)? onItemSelected;
 
   const SidebarWidget({
     super.key,
-    required this.menuItems,
     this.selectedItem,
     this.onItemSelected,
   });
@@ -29,7 +27,7 @@ class SidebarWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => SidebarCubit()..initializeSidebar(menuItems),
+      create: (context) => SidebarCubit()..initializeSidebar(),
       child: BlocBuilder<SidebarCubit, SidebarState>(
         builder: (context, state) {
           if (state is SidebarLoaded) {
