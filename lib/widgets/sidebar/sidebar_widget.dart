@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../models/menu_item.dart';
+import '../../blocs/sidebar/sidebar.dart';
 
-class SidebarWidget extends StatefulWidget {
+class SidebarWidget extends StatelessWidget {
   final List<MenuItem> menuItems;
   final String? selectedItem;
   final Function(String)? onItemSelected;
@@ -13,91 +15,87 @@ class SidebarWidget extends StatefulWidget {
     this.onItemSelected,
   });
 
-  @override
-  State<SidebarWidget> createState() => _SidebarWidgetState();
-}
-
-class _SidebarWidgetState extends State<SidebarWidget> {
-  late List<MenuItem> _menuItems;
-
-  @override
-  void initState() {
-    super.initState();
-    _menuItems = List.from(widget.menuItems);
+  void _toggleExpansion(BuildContext context, int index) {
+    context.read<SidebarCubit>().toggleMenuExpansion(index);
   }
 
-  void _toggleExpansion(int index) {
-    setState(() {
-      _menuItems[index] = _menuItems[index].copyWith(
-        isExpanded: !_menuItems[index].isExpanded,
-      );
-    });
-  }
-
-  void _selectItem(String title) {
-    widget.onItemSelected?.call(title);
+  void _selectItem(BuildContext context, String title, int menuIndex, int? subItemIndex) {
+    if (subItemIndex != null) {
+      context.read<SidebarCubit>().selectSubMenuItem(menuIndex, subItemIndex);
+    }
+    onItemSelected?.call(title);
   }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 280,
-      color: Colors.white,
-      child: Column(
-        children: [
-          // Header
-          Container(
-            padding: const EdgeInsets.all(20),
-            child: Row(
-              children: [
-                Container(
-                  width: 32,
-                  height: 32,
-                  decoration: BoxDecoration(
-                    color: Colors.orange,
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: const Center(
-                    child: Text(
-                      'S',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
+    return BlocProvider(
+      create: (context) => SidebarCubit()..initializeSidebar(menuItems),
+      child: BlocBuilder<SidebarCubit, SidebarState>(
+        builder: (context, state) {
+          if (state is SidebarLoaded) {
+            return Container(
+              width: 280,
+              color: Colors.white,
+              child: Column(
+                children: [
+                  // Header
+                  Container(
+                    padding: const EdgeInsets.all(20),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 32,
+                          height: 32,
+                          decoration: BoxDecoration(
+                            color: Colors.orange,
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: const Center(
+                            child: Text(
+                              'S',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        const Text(
+                          'Persistent',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                ),
-                const SizedBox(width: 12),
-                const Text(
-                  'Persistent',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
+                  const Divider(height: 1),
+                  // Menu Items
+                  Expanded(
+                    child: ListView.builder(
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      itemCount: state.menuItems.length,
+                      itemBuilder: (context, index) {
+                        return _buildMenuItem(context, state.menuItems[index], index, state);
+                      },
+                    ),
                   ),
-                ),
-              ],
-            ),
-          ),
-          const Divider(height: 1),
-          // Menu Items
-          Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              itemCount: _menuItems.length,
-              itemBuilder: (context, index) {
-                return _buildMenuItem(_menuItems[index], index);
-              },
-            ),
-          ),
-        ],
+                ],
+              ),
+            );
+          }
+          return const Center(child: CircularProgressIndicator());
+        },
       ),
     );
   }
 
-  Widget _buildMenuItem(MenuItem item, int index) {
-    final isSelected = widget.selectedItem == item.title;
+  Widget _buildMenuItem(BuildContext context, MenuItem item, int index, SidebarLoaded state) {
+    final isSelected = selectedItem == item.title;
     final hasSubItems = item.subItems.isNotEmpty;
 
     return Column(
@@ -111,9 +109,9 @@ class _SidebarWidgetState extends State<SidebarWidget> {
               borderRadius: BorderRadius.circular(8),
               onTap: () {
                 if (hasSubItems) {
-                  _toggleExpansion(index);
+                  _toggleExpansion(context, index);
                 } else {
-                  _selectItem(item.title);
+                  _selectItem(context, item.title, index, null);
                   item.onTap?.call();
                 }
               },
@@ -181,7 +179,7 @@ class _SidebarWidgetState extends State<SidebarWidget> {
                   children: item.subItems.asMap().entries.map((entry) {
                     final subIndex = entry.key;
                     final subItem = entry.value;
-                    final isSubSelected = widget.selectedItem == subItem.title;
+                    final isSubSelected = state.selectedMenuIndex == index && state.selectedSubItemIndex == subIndex;
                     final isLast = subIndex == item.subItems.length - 1;
                     
                     return Column(
@@ -194,7 +192,7 @@ class _SidebarWidgetState extends State<SidebarWidget> {
                             child: InkWell(
                               borderRadius: BorderRadius.circular(6),
                               onTap: () {
-                                _selectItem(subItem.title);
+                                _selectItem(context, subItem.title, index, subIndex);
                                 subItem.onTap?.call();
                               },
                               child: Container(
